@@ -1,0 +1,354 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:ocr/home/bottom_navigation_bar.dart';
+import 'package:ocr/home/files_view.dart';
+import 'package:ocr/home/unsync_files_view.dart';
+import 'package:ocr/network/network_connect.dart';
+import 'package:ocr/user/login/UserLogin.dart';
+import 'package:ocr/utils/AppColors.dart';
+import 'package:ocr/utils/file_operations/upload_documents.dart';
+import 'package:ocr/utils/shared_preference.dart';
+import 'package:ocr/utils/tab_items.dart';
+
+class RootDashboard extends StatefulWidget {
+  final remoteData;
+  // final NotificationAppLaunchDetails notificationAppLaunchDetails;
+  RootDashboard({this.remoteData});
+
+  @override
+  _RootDashboardState createState() => _RootDashboardState();
+}
+
+class _RootDashboardState extends State<RootDashboard>
+    with SingleTickerProviderStateMixin {
+  AnimationController controller;
+  Animation colorAnimation;
+  Animation rotateAnimation;
+
+  var _isVisible;
+  String selectedTab = "Project", referenceId;
+  final GlobalKey<ScaffoldState> dKey = GlobalKey<ScaffoldState>();
+  TabItem _currentTab;
+  var completeProfile;
+
+  @override
+  void initState() {
+    _isVisible = true;
+    _currentTab = TabItem.files;
+    super.initState();
+    controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 200));
+    rotateAnimation = Tween<double>(begin: 360.0, end: 0.0).animate(controller);
+  }
+
+  void _selectTab(TabItem tabItem) {
+    if (tabItem == _currentTab) {
+      // navigatorKeys[tabItem].currentState.popUntil((route) => route.isFirst);
+    } else {
+      setState(() {
+        _currentTab = tabItem;
+      });
+    }
+    if (referenceId != null) {
+      Future.delayed(Duration(seconds: 1), () {
+        referenceId = null;
+      });
+    }
+  }
+
+  _showSyncDoneDialog(var counts) async {
+    return await showDialog(
+        context: context,
+        builder: (BuildContext popupContext) {
+          return AlertDialog(
+            title: Text('$counts Documents Uploaded Successfully!'),
+            actions: [
+              RaisedButton(
+                color: AppColors.appTheame,
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+                child: Text(
+                  "See Files",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              RaisedButton(
+                color: AppColors.appTheame,
+                onPressed: () {
+                  Navigator.pop(context, false);
+                },
+                child: Text(
+                  "Close",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            ],
+          );
+        });
+  }
+
+  void showFilesPopUp(List fileDetails) async {
+    await showDialog(
+      context: context,
+      // barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(8.0),
+            ),
+          ),
+          // title: Container(
+          //   width: MediaQuery.of(context).size.width,
+          //   alignment: Alignment.center,
+          //   child: Text(
+          //     "All Files",
+          //     style: TextStyle(
+          //       color: Colors.black,
+          //       fontWeight: FontWeight.w600,
+          //       fontSize: 17,
+          //     ),
+          //   ),
+          // ),
+          content: SingleChildScrollView(
+            child: Container(
+              height: fileDetails.length == 1
+                  ? 77
+                  : (fileDetails.length < 5
+                      ? fileDetails.length * 60.0
+                      : 300.0),
+              width: MediaQuery.of(context).size.width,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: EdgeInsets.symmetric(vertical: 5),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "All Files",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 17,
+                      ),
+                    ),
+                  ),
+                  Divider(),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: fileDetails.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "${fileDetails[index]['filename']}",
+                            ),
+                            Text(
+                              "${fileDetails[index]['status']}",
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  )
+                ],
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            RaisedButton(
+              color: AppColors.appTheame,
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text(
+                "OK",
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.white,
+                ),
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  syncFiles() async {
+    if (!controller.isAnimating) {
+      setState(() {
+        controller.forward();
+      });
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+      final snackBar1 = SnackBar(
+          content: Text(
+        'Uploading documents',
+      ));
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar1);
+
+      String counts = await UploadDocuments.fetchFiles(this.context);
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+      setState(() {
+        controller.stop();
+        controller.reset();
+      });
+      if (counts == '0/0') {
+        final snackBar3 = SnackBar(
+          content: Text(
+            "No Documents to Sync!",
+          ),
+          // action: SnackBarAction(
+          //   label: "See Files",
+          //   onPressed: () =>
+          //       showFilesPopUp(NetworkConnect.currentUser.totalFiles),
+          // ),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar3);
+      } else {
+        bool isShowFiles = await _showSyncDoneDialog(counts);
+        if (isShowFiles == true) {
+          showFilesPopUp(NetworkConnect.currentUser.totalFiles);
+        }
+      }
+    } else {
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+      final snackBar2 = SnackBar(
+          content: Text(
+        'Uploading documents is in progress',
+      ));
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar2);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => WillPopScope(
+        onWillPop: () async {
+          final isFirstRouteInCurrentTab =
+              navigatorKeys[_currentTab].currentState != null
+                  ? !await navigatorKeys[_currentTab].currentState.maybePop()
+                  : true;
+          if (isFirstRouteInCurrentTab) {
+            if (_currentTab != TabItem.files) {
+              _selectTab(TabItem.files);
+              return false;
+            }
+          }
+          return isFirstRouteInCurrentTab;
+        },
+        child: Scaffold(
+          key: dKey,
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            title: Text(_currentTab.index == 0
+                ? "Files"
+                : _currentTab.index == 1
+                    ? "Unsync Files"
+                    : "Files"),
+            centerTitle: false,
+            actions: [
+              GestureDetector(
+                onTap: syncFiles,
+                child: Container(
+                  margin: EdgeInsets.all(8),
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.0),
+                    color: AppColors.appTheame,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black,
+                        blurRadius: 2.0,
+                        spreadRadius: 0.0,
+                        offset:
+                            Offset(2.0, 2.0), // shadow direction: bottom right
+                      )
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      AnimatedSync(
+                        animation: rotateAnimation,
+                        callback: syncFiles,
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        controller.isAnimating ? "Syncing..." : "Sync",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              IconButton(
+                  icon: Icon(Icons.logout),
+                  onPressed: () async {
+                    SharedPrefManager.allClear();
+                    NetworkConnect.currentUser = null;
+                    await UploadDocuments.deleteAllFiles();
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => UserLogin()),
+                        (Route<dynamic> route) => false);
+                  })
+            ],
+          ),
+          body: _currentTab.index == 0
+              ? FilesView()
+              : _currentTab.index == 1
+                  ? UnsyncFiles()
+                  : FilesView(),
+        //   bottomNavigationBar: SafeArea(
+        //     child: AnimatedContainer(
+        //       curve: Curves.bounceIn,
+        //       duration: Duration(milliseconds: 400),
+        //       height: _isVisible ? 69.0 : 0.0,
+        //       child: _isVisible
+        //           ? BottomNavigation(
+        //               currentTab: _currentTab,
+        //               onSelectTab: _selectTab,
+        //             )
+        //           : Container(
+        //               width: 0.0,
+        //               height: 0.0,
+        //             ),
+        //     ),
+        //   ),
+        ),
+      );
+}
+
+class AnimatedSync extends AnimatedWidget {
+  VoidCallback callback;
+  AnimatedSync({Key key, Animation<double> animation, this.callback})
+      : super(key: key, listenable: animation);
+
+  Widget build(BuildContext context) {
+    final Animation<double> animation = listenable;
+    return Transform.rotate(
+      angle: animation.value,
+      child: GestureDetector(
+          child: Icon(
+            Icons.sync,
+            // color: Colors.black,
+          ), // <-- Icon
+          onTap: () => callback()),
+    );
+  }
+}
