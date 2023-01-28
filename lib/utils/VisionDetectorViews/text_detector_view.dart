@@ -147,7 +147,7 @@ class _TextDetectorViewState extends State<TextDetectorView> {
     if (Platform.isIOS) {
       externalStorageDirectory = await getApplicationDocumentsDirectory();
     } else {
-      externalStorageDirectory = await getExternalStorageDirectory();
+      externalStorageDirectory = await getApplicationDocumentsDirectory();
     }
     path = externalStorageDirectory.path;
     // }
@@ -224,7 +224,7 @@ class _TextDetectorViewState extends State<TextDetectorView> {
     if (Platform.isIOS) {
       externalStorageDirectory = await getApplicationDocumentsDirectory();
     } else {
-      externalStorageDirectory = await getExternalStorageDirectory();
+      externalStorageDirectory = await getApplicationDocumentsDirectory();
     }
     path = externalStorageDirectory.path;
 
@@ -261,7 +261,7 @@ class _TextDetectorViewState extends State<TextDetectorView> {
   }
 
   Future<void> _deleteCacheDir() async {
-    final cacheDir = await getTemporaryDirectory();
+    final cacheDir = await getApplicationDocumentsDirectory();
 
     if (cacheDir.existsSync()) {
       cacheDir.deleteSync(recursive: true);

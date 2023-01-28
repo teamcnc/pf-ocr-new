@@ -29,6 +29,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void initState() {
+    SharedPrefManager.getSharedPref().then((value) => getSharedPref());
     super.initState();
     animationController =
         AnimationController(vsync: this, duration: Duration(seconds: 1));
@@ -40,7 +41,6 @@ class _SplashScreenState extends State<SplashScreen>
       _visible = !_visible;
     });
     startTime();
-    SharedPrefManager.getSharedPref().then((value) => getSharedPref());
   }
 
   void dispose() {
@@ -92,9 +92,7 @@ class _SplashScreenState extends State<SplashScreen>
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => RootDashboard()
-            // FilesView(),
-            ),
+        MaterialPageRoute(builder: (context) => RootDashboard()),
       );
     }
   }

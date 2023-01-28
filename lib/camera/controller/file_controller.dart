@@ -89,7 +89,8 @@ class FileController {
           pathElements[pathElements.length - 2])['status'] = 'Success';
       // .add({'filename': fileObj['filename'], 'status': 'Success'});
 
-      SharedPrefManager.setCurrentUser(NetworkConnect.currentUser);
+      // SharedPrefManager.setCurrentUser(NetworkConnect.currentUser);
+      SharedPrefManager.updateCurrentUser(NetworkConnect.currentUser);
       return true;
     } else {
       fileListStreamSink.add(

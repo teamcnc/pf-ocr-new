@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+// import 'package:flutter_phoenix/flutter_phoenix.dart';
 // import 'package:flutter_stetho/flutter_stetho.dart';
 import 'package:ocr/home/purchase/model/purchase.dart';
 import 'package:ocr/home/sales/model/sales.dart';
@@ -16,6 +17,7 @@ Map<String, dynamic> salesUnsyncFilters = {};
 Map<String, dynamic> purchaseUnsyncFilters = {};
 List<Sales> globalSalesList = [];
 List<Purchase> globalPurchaseList = [];
+GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   loadMainFunction();
@@ -24,9 +26,11 @@ void main() {
 Future<void> loadMainFunction() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Stetho.initialize();
-  runApp(MultiProvider(providers: [
-    ChangeNotifierProvider(create: (context) => User()),
-  ], child: OCR()));
+  runApp(
+    MultiProvider(providers: [
+      ChangeNotifierProvider(create: (context) => User()),
+    ], child: OCR()),
+  );
 }
 
 class OCR extends StatefulWidget {
@@ -38,6 +42,7 @@ class _OCRState extends State<OCR> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: AppColors.appTheame,

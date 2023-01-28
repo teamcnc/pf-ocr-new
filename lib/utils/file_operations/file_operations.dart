@@ -13,7 +13,7 @@ class FileOperations {
     if (Platform.isIOS) {
       externalStorageDirectory = await getApplicationDocumentsDirectory();
     } else {
-      externalStorageDirectory = await getExternalStorageDirectory();
+      externalStorageDirectory = await getApplicationDocumentsDirectory();
     }
     path = externalStorageDirectory.path;
     // }

@@ -39,7 +39,7 @@ class _ImageSliderViewState extends State<ImageSliderView> {
     // SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
     //     overlays: [SystemUiOverlay.bottom]);
     if (widget.images != null) {
-      temporaryDirectory = await getTemporaryDirectory();
+      temporaryDirectory = await getApplicationDocumentsDirectory();
       if (widget.images.length > imagesImageSlide.length) {
         for (int i = imagesImageSlide.isEmpty ? 0 : imagesImageSlide.length;
             i < widget.images.length;
@@ -98,7 +98,8 @@ class _ImageSliderViewState extends State<ImageSliderView> {
 
                   String fileName =
                       imagesImageSlide[index].path.split("/").last;
-                  Directory directory = await getTemporaryDirectory();
+                  Directory directory =
+                      await getApplicationDocumentsDirectory();
                   File tempFile = await d.keys
                       .elementAt(0)
                       .copy(directory.path + "/" + "abc" + fileName);
@@ -244,40 +245,6 @@ class _ImageSliderViewState extends State<ImageSliderView> {
         ],
       ),
     );
-  }
-
-  Future<File> _processPickedFile(
-    File pickedFile, {
-    double ratioX,
-    double ratioY,
-  }) async {
-    // var cropAspectRatio = CropAspectRatio(ratioX: ratioX, ratioY: ratioY)
-    // File _image = await ImageCropper().cropImage(
-    //   sourcePath: pickedFile.path,
-    //   // aspectRatio: CropAspectRatio(ratioX: 1.2229965156794425, ratioY: 0.8176638176638177),
-    //   aspectRatioPresets: [
-    //     CropAspectRatioPreset.square,
-    //     CropAspectRatioPreset.ratio3x2,
-    //     CropAspectRatioPreset.original,
-    //     CropAspectRatioPreset.ratio4x3,
-    //     CropAspectRatioPreset.ratio16x9
-    //   ],
-    //   androidUiSettings: AndroidUiSettings(
-    //     toolbarTitle: 'Cropper',
-    //     toolbarColor: Colors.deepOrange,
-    //     toolbarWidgetColor: Colors.white,
-    //     initAspectRatio: CropAspectRatioPreset.original,
-    //     lockAspectRatio: false,
-    //   ),
-    //   iosUiSettings: IOSUiSettings(
-    //     minimumAspectRatio: 1.0,
-    //   ),
-    // );
-    // if (_image == null) {
-    //   return null;
-    // } else {
-    //   return _image;
-    // }
   }
 }
 

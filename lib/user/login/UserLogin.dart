@@ -29,7 +29,7 @@ class _UserLoginState extends State<UserLogin> {
 
   loginPressed() {
     FocusScope.of(context).unfocus();
- 
+
     if (_formKey.currentState.validate()) {
       EasyLoading.show();
       // _widgetsCollection.showMessageDialog();

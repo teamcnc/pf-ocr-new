@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-// import 'package:flutter_restart/flutter_restart.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:ocr/user/model/user_model.dart';
+import 'package:ocr/utils/shared_preference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NetworkConnect {
@@ -20,11 +20,11 @@ class NetworkConnect {
       fileUpload = 'ocrapp/process.php',
       purchaseInvoices = 'pressfit-api/uploads-apinv-orig';
 
-  logoutUser() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.clear();
-    // FlutterRestart.restartApp();
-  }
+  // logoutUser() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   prefs.clear();
+  //   FlutterRestart.restartApp();
+  // }
 
   Future sendPost(Map<String, dynamic> mapBody, String url) async {
     try {
@@ -60,7 +60,7 @@ class NetworkConnect {
           await http.get(Uri.tryParse('$_baseUrl$url'), headers: headersData);
       Map<String, dynamic> map = jsonDecode(response.body);
       if (response.statusCode == 401 || response.statusCode == 403) {
-        logoutUser();
+        SharedPrefManager.logout(null);
       }
 
       return map;
@@ -87,7 +87,8 @@ class NetworkConnect {
       );
       Map<String, dynamic> map = jsonDecode(response.body);
       if (response.statusCode == 401 || response.statusCode == 403) {
-        logoutUser();
+        // logoutUser();
+        SharedPrefManager.logout(null);
       }
 
       return map;
@@ -137,7 +138,8 @@ class NetworkConnect {
           await http.Response.fromStream(await request.send());
       Map<String, dynamic> map = jsonDecode(response.body);
       if (response.statusCode == 401 || response.statusCode == 403) {
-        logoutUser();
+        // logoutUser();
+        SharedPrefManager.logout(null);
       }
 
       return map;

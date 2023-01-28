@@ -53,7 +53,7 @@ class _RootDashboardState extends State<RootDashboard>
 
   listenStreams() {
     _fileController.fileListStream.listen((event) {
-      print("Event Listen=$event");
+      // print("Event Listen=$event");
       if (event == true) {
         if (fromUnsync == true) {
           setState(() {
@@ -266,15 +266,15 @@ class _RootDashboardState extends State<RootDashboard>
           IconButton(
               icon: Icon(Icons.logout),
               onPressed: () async {
-                salesFilters = {};
-                purchaseFilters = {};
-                salesUnsyncFilters = {};
-                purchaseUnsyncFilters = {};
-                globalSalesList = [];
-                globalPurchaseList = [];
-                SharedPrefManager.allClear();
-                NetworkConnect.currentUser = null;
-                await UploadDocuments.deleteAllFiles();
+                // salesFilters = {};
+                // purchaseFilters = {};
+                // salesUnsyncFilters = {};
+                // purchaseUnsyncFilters = {};
+                // globalSalesList = [];
+                // globalPurchaseList = [];
+                SharedPrefManager.logout(null);
+                // NetworkConnect.currentUser = null;
+                // await UploadDocuments.deleteAllFiles();
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => UserLogin()),
                     (Route<dynamic> route) => false);

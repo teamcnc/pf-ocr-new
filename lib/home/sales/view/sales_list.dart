@@ -52,6 +52,13 @@ class _SalesListState extends State<SalesList> {
   }
 
   @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     EasyLoading.show();
@@ -76,7 +83,7 @@ class _SalesListState extends State<SalesList> {
       _refreshController.refreshCompleted();
       filterListItems();
       if (sortedBy != null) sortListItems();
-      if (this.mounted) setState(() {});
+      setState(() {});
     } else {
       if (globalSalesList != null && globalSalesList.length > 0) {
         clearData();
@@ -440,7 +447,9 @@ class _SalesListState extends State<SalesList> {
                             };
                             NetworkConnect.currentUser.salesID.add(salesObj);
                             EasyLoading.show();
-                            SharedPrefManager.setCurrentUser(
+                            // SharedPrefManager.setCurrentUser(
+                            //     NetworkConnect.currentUser);
+                            SharedPrefManager.updateCurrentUser(
                                 NetworkConnect.currentUser);
                             fetchFiles();
                           }

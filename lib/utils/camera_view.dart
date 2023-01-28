@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:developer' as a;
 import 'dart:io';
 import 'dart:math';
 
 import 'package:camera/camera.dart';
+import 'package:device_information/device_information.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
@@ -35,6 +37,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   String filename = '';
   FlashMode flashMode = FlashMode.always;
   var selectedFilePickType;
+  var apiLevel;
 
   @override
   void initState() {
@@ -93,25 +96,25 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   }
 
   setCamera() async {
+    apiLevel = await DeviceInformation.apiLevel;
     final cameras = await availableCameras();
     var selectedCamera;
-
     if (cameras.length > 1 &&
         _controller != null &&
         _controller.description.lensDirection == CameraLensDirection.back) {
       selectedCamera = cameras.last;
     } else {
-      selectedCamera = cameras.first;
+      selectedCamera = cameras[0];
     }
-
     _controller = CameraController(
       selectedCamera,
-      ResolutionPreset.ultraHigh,
+      ResolutionPreset.max,
     );
+
     print("_controller.cameraId=${_controller.description.lensDirection}");
 
     // Next, initialize the controller. This returns a Future.
-    _initializeControllerFuture = _controller.initialize();
+    await (_initializeControllerFuture = _controller.initialize());
 
     setState(() {});
   }
@@ -152,7 +155,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     if (Platform.isIOS) {
       externalStorageDirectory = await getApplicationDocumentsDirectory();
     } else {
-      externalStorageDirectory = await getExternalStorageDirectory();
+      externalStorageDirectory = await getApplicationDocumentsDirectory();
     }
     path = externalStorageDirectory.path;
 
@@ -166,7 +169,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     if (Platform.isIOS) {
       externalStorageDirectory = await getApplicationDocumentsDirectory();
     } else {
-      externalStorageDirectory = await getExternalStorageDirectory();
+      externalStorageDirectory = await getApplicationDocumentsDirectory();
     }
     path = externalStorageDirectory.path;
     Directory _appDocDirFolderstart = Directory('${path}/Uploads/');
@@ -206,7 +209,11 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   }
 
   Future<PermissionStatus> checkPermission() async {
+    print("checkPermission ====> Started");
     var statuses = await Permission.storage.request();
+    if (apiLevel == 33) {
+      return PermissionStatus.granted;
+    }
     return statuses;
   }
 
@@ -224,11 +231,20 @@ class TakePictureScreenState extends State<TakePictureScreen> {
             if (await uploadsEntities[i].exists()) {
               uploadsDirectories.forEach(
                 (element) async {
-                  if (element.path != uploadsEntities[i].path) {
-                    print('deleteUnusedFiles===>' + uploadsEntities[i].path);
-                    if (await uploadsEntities[i].exists()) {
-                      uploadsEntities[i].delete();
+                  try {
+                    if (element.path != uploadsEntities[i].path) {
+                      if (await uploadsEntities[i].exists() &&
+                          uploadsEntities[i].path.endsWith(".jpg")) {
+                        print('deleteUnusedFiles deleted===>' +
+                            uploadsEntities[i].path);
+                        uploadsEntities[i].delete();
+                      } else {
+                        print('deleteUnusedFiles not deleted===>' +
+                            uploadsEntities[i].path);
+                      }
                     }
+                  } on FileSystemException catch (e) {
+                    print(e.osError.message);
                   }
                 },
               );
@@ -262,7 +278,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     if (Platform.isIOS) {
       externalStorageDirectory = await getApplicationDocumentsDirectory();
     } else {
-      externalStorageDirectory = await getExternalStorageDirectory();
+      externalStorageDirectory = await getApplicationDocumentsDirectory();
     }
     path = externalStorageDirectory.path;
 
@@ -274,12 +290,13 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     if (isPermissionGranted == PermissionStatus.granted) {
       try {
         var path = await findLocalPath();
-        var finalPdf = pdfConverter(i);
+        var finalPdf = await pdfConverter(i);
         var rng = new Random();
         filename = "${rng.nextInt(10000)}.pdf";
         final pdffile = File(path + filename);
         await pdffile.writeAsBytes(await finalPdf.save());
-        await deleteUnusedFiles(i);
+        // await deleteUnusedFiles(i);
+        print("PDF FiLE GENERATED PATH=======> ${pdffile.path}");
       } catch (e) {
         print("Error one=====>" + e.toString());
       } finally {
@@ -292,10 +309,10 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     }
   }
 
-  pw.Document pdfConverter(List<File> i) {
+  Future<pw.Document> pdfConverter(List<File> i) async {
     print("pdfConverter=========>" + i.toString());
     final pdf = pw.Document();
-    i.forEach((element) {
+    for (var element in i) {
       final image = pw.MemoryImage(element.readAsBytesSync());
       pdf.addPage(
         pw.Page(
@@ -304,8 +321,9 @@ class TakePictureScreenState extends State<TakePictureScreen> {
             build: (pw.Context context) {
               return pw.Center(child: pw.Image(image)); // Center
             }),
-      ); // Page
-    });
+      );
+    }
+
     return pdf;
   }
 
@@ -315,7 +333,9 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     // Dispose of the controller when the widget is disposed.
     imagesImageSlide.clear();
     croppedListImageSlide.clear();
-    _controller.dispose();
+    if (_controller != null) {
+      _controller.dispose();
+    }
     images.clear();
     super.dispose();
   }
@@ -329,7 +349,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
         title: const Text('Take a picture'),
       ),
       body: selectedFilePickType == "camera"
-          ? FutureBuilder<void>(
+          ? FutureBuilder(
               future: _initializeControllerFuture,
               builder: (context, snapshot) {
                 return Stack(
@@ -486,7 +506,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
                                                           EasyLoading.showToast(
                                                               "Images not capture!");
                                                       })));
-                                      if (this.mounted) {
+                                      if (mounted) {
                                         setState(() {});
                                       }
                                     })),

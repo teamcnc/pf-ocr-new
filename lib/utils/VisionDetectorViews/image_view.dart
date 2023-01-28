@@ -52,10 +52,10 @@ class _ImageViewState extends State<ImageView> {
     super.dispose();
   }
 
-  @override 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+        backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: AppColors.appTheame,
           title: Text("File"),
@@ -124,7 +124,6 @@ class _ImageViewState extends State<ImageView> {
             IconButton(
                 icon: Icon(Icons.delete_forever),
                 onPressed: () async {
-                  await image.delete();
                   // var unsyncFiles = await UploadDocuments.getAllFiles();
                   // unsyncFiles.remove(image);
 
@@ -135,7 +134,12 @@ class _ImageViewState extends State<ImageView> {
                     NetworkConnect.currentUser.purchaseID.removeWhere(
                         (element) => element['docentry'] == purchase.docEntry);
                   }
-                  SharedPrefManager.setCurrentUser(NetworkConnect.currentUser);
+                  // SharedPrefManager.setCurrentUser(NetworkConnect.currentUser);
+                  SharedPrefManager.updateCurrentUser(
+                      NetworkConnect.currentUser);
+                  if (await image.exists()) {
+                    await image.delete();
+                  }
                   Navigator.pop(context, true);
                 })
           ],
@@ -159,7 +163,7 @@ class _ImageViewState extends State<ImageView> {
                           print(snapShot.data);
                           return GestureDetector(
                             onTap: () {
-                              if(pages>1){
+                              if (pages > 1) {
                                 pdfViewController.setPage(index);
                               }
                             },
@@ -175,7 +179,7 @@ class _ImageViewState extends State<ImageView> {
                               width: 30,
                               height: 30,
                               child: Text(
-                                (index+1).toString(),
+                                (index + 1).toString(),
                                 style: TextStyle(
                                   color: snapShot.data == (index)
                                       ? Colors.white

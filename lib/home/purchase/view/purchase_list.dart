@@ -445,7 +445,7 @@ class _PurchaseListState extends State<PurchaseList> {
                                                               EasyLoading
                                                                   .show();
                                                               SharedPrefManager
-                                                                  .setCurrentUser(
+                                                                  .updateCurrentUser(
                                                                       NetworkConnect
                                                                           .currentUser);
                                                               fetchFiles();

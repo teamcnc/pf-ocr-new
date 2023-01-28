@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_information/device_information.dart';
 import 'package:flutter/material.dart';
 import 'package:ocr/camera/controller/file_controller.dart';
 import 'package:ocr/network/network_connect.dart';
@@ -13,7 +14,7 @@ class UploadDocuments {
     if (Platform.isIOS) {
       externalStorageDirectory = await getApplicationDocumentsDirectory();
     } else {
-      externalStorageDirectory = await getExternalStorageDirectory();
+      externalStorageDirectory = await getApplicationDocumentsDirectory();
     }
     path = externalStorageDirectory.path;
     // }
@@ -29,10 +30,14 @@ class UploadDocuments {
 
   static Future<PermissionStatus> checkPermission() async {
     var statuses = await Permission.storage.request();
+    if (await DeviceInformation.apiLevel == 33) {
+      return PermissionStatus.granted;
+    }
     return statuses;
   }
 
-  static Future<String> fetchFiles(BuildContext viewContext, FileController fileController) async {
+  static Future<String> fetchFiles(
+      BuildContext viewContext, FileController fileController) async {
     int successCount = 0, failureCount = 0;
     try {
       NetworkConnect.currentUser.totalFiles = [];
@@ -180,21 +185,21 @@ class UploadDocuments {
   }
 
   static Future<bool> deleteAllFiles() async {
-    try {
-      var isPermissionGranted = await checkPermission();
-      if (isPermissionGranted == PermissionStatus.granted) {
-        var uploadsPath = await findLocalPath();
-        if (uploadsPath != null) {
-          Directory docDir = Directory(uploadsPath);
-          docDir.delete(recursive: true);
-        }
-      } else {
-        // _widgetsCollection.showToastMessage(
-        //     "No permission to download", _buildContext);
-      }
-    } catch (e) {
-      print("$e");
-    }
+    // try {
+    //   var isPermissionGranted = await checkPermission();
+    //   if (isPermissionGranted == PermissionStatus.granted) {
+    //     var uploadsPath = await findLocalPath();
+    //     if (uploadsPath != null) {
+    //       Directory docDir = Directory(uploadsPath);
+    //       docDir.delete(recursive: true);
+    //     }
+    //   } else {
+    //     // _widgetsCollection.showToastMessage(
+    //     //     "No permission to download", _buildContext);
+    //   }
+    // } catch (e) {
+    //   print("$e");
+    // }
     return true;
   }
 }

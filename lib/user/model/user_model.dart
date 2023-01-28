@@ -45,10 +45,15 @@ class User with ChangeNotifier {
     token = map['access_token'];
     id = map['UserCode'];
     name = map['UserName'];
-    salesID = map['sales_ids'] ?? [];
+    if (map['sales_ids'] != null) {
+      map['sales_ids'].forEach((v) {
+        salesID.add(v);
+      });
+    }
     purchaseID = map['purchase_ids'] ?? [];
     auth = map['U_Auth_UploadsType'];
     password = map['PW'];
+    isUploadingFiles = map['isUploadingFiles'];
     notifyListeners();
   }
 
@@ -60,7 +65,8 @@ class User with ChangeNotifier {
       'UserName': name,
       'sales_ids': salesID,
       'purchase_ids': purchaseID,
-      'PW': password
+      'PW': password,
+      'isUploadingFiles': isUploadingFiles,
     };
   }
 }
