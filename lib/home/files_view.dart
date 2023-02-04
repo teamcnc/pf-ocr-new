@@ -289,21 +289,22 @@ class _FilesViewState extends State<FilesView>
           ),
           SizedBox(height: 15),
           Expanded(
-              child: tabName == "sales"
-                  ? SalesList(
-                      fromUnsync: false,
-                      onNavigate: (value) {
-                        widget.onNavigate(value, "sales");
-                      },
-                    )
-                  : tabName == "purchase"
-                      ? PurchaseList(
-                          fromUnsync: false,
-                          onNavigate: (value) {
-                            widget.onNavigate(value, "purchase");
-                          },
-                        )
-                      : Container())
+            child: tabName == "sales"
+                ? SalesList(
+                    fromUnsync: false,
+                    onNavigate: (value) {
+                      widget.onNavigate(value, "sales");
+                    },
+                  )
+                : tabName == "purchase"
+                    ? PurchaseList(
+                        fromUnsync: false,
+                        onNavigate: (value) {
+                          widget.onNavigate(value, "purchase");
+                        },
+                      )
+                    : Container(),
+          ),
         ],
       ),
     ));

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -21,6 +22,8 @@ import 'package:ocr/utils/file_operations/upload_documents.dart';
 import 'package:ocr/utils/navigation.dart';
 import 'package:ocr/utils/shared_preference.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+
+import '../../../utils/debouncer.dart';
 
 class PurchaseList extends StatefulWidget {
   OnNavigate onNavigate;
@@ -152,6 +155,7 @@ class _PurchaseListState extends State<PurchaseList> {
   }
 
   var tempList = <Purchase>[];
+  final _debouncer = Debouncer(milliseconds: 800);
 
   @override
   Widget build(BuildContext context) {
@@ -180,27 +184,31 @@ class _PurchaseListState extends State<PurchaseList> {
                           padding: const EdgeInsets.only(
                               left: 16, right: 16, bottom: 16),
                           child: TextFormField(
-                            onChanged: (query) async {
-                              purchaseList = tempList.where(
-                                (element) {
-                                  return (element.vendorCode
-                                          .toLowerCase()
-                                          .contains(query.toLowerCase()) ||
-                                      element.vendorName
-                                          .toLowerCase()
-                                          .contains(query.toLowerCase()) ||
-                                      element.docEntry
-                                          .toLowerCase()
-                                          .contains(query.toLowerCase()) ||
-                                      element.docNum
-                                          .toLowerCase()
-                                          .contains(query.toLowerCase()) ||
-                                      element.document
-                                          .toLowerCase()
-                                          .contains(query.toLowerCase()));
-                                },
-                              ).toList();
-                              re(() {});
+                            onChanged: (query) {
+                              _debouncer.run(() async {
+                                purchaseList = tempList.where(
+                                  (element) {
+                                    return (element.vendorCode
+                                            .toLowerCase()
+                                            .contains(query.toLowerCase()) ||
+                                        element.vendorName
+                                            .toLowerCase()
+                                            .contains(query.toLowerCase()) ||
+                                        element.docEntry
+                                            .toLowerCase()
+                                            .contains(query.toLowerCase()) ||
+                                        element.docNum
+                                            .toLowerCase()
+                                            .contains(query.toLowerCase()) ||
+                                        element.document
+                                            .toLowerCase()
+                                            .contains(query.toLowerCase()));
+                                  },
+                                ).toList();
+                                re(() {
+                                  log("List Filtered=====>");
+                                });
+                              });
                             },
                             decoration: InputDecoration(
                               fillColor: Colors.white,

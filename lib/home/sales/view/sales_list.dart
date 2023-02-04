@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ import 'package:ocr/utils/shared_preference.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:camera/camera.dart';
 
+import '../../../utils/debouncer.dart';
 import 'filters.dart';
 
 class SalesList extends StatefulWidget {
@@ -154,9 +156,11 @@ class _SalesListState extends State<SalesList> {
   }
 
   var tempList = <Sales>[];
+  final _debouncer = Debouncer(milliseconds: 800);
 
   @override
   Widget build(BuildContext context) {
+    print(tempList.length);
     tempList.clear();
     tempList.addAll(saleList);
     return Scaffold(
@@ -182,25 +186,30 @@ class _SalesListState extends State<SalesList> {
                             padding: const EdgeInsets.only(
                                 left: 16, right: 16, bottom: 16),
                             child: TextFormField(
-                              onChanged: (query) async {
-                                saleList = tempList.where((element) {
-                                  return element.customerCode
-                                          .toLowerCase()
-                                          .contains(query.toLowerCase()) ||
-                                      element.customerName
-                                          .toLowerCase()
-                                          .contains(query.toLowerCase()) ||
-                                      element.docEntry
-                                          .toLowerCase()
-                                          .contains(query.toLowerCase()) ||
-                                      element.docNum
-                                          .toLowerCase()
-                                          .contains(query.toLowerCase()) ||
-                                      element.document
-                                          .toLowerCase()
-                                          .contains(query.toLowerCase());
-                                }).toList();
-                                re(() {});
+                              onChanged: (query) {
+                                _debouncer.run(() async {
+                                  saleList = tempList.where((element) {
+                                    return element.customerCode
+                                            .toLowerCase()
+                                            .contains(query.toLowerCase()) ||
+                                        element.customerName
+                                            .toLowerCase()
+                                            .contains(query.toLowerCase()) ||
+                                        element.docEntry
+                                            .toLowerCase()
+                                            .contains(query.toLowerCase()) ||
+                                        element.docNum
+                                            .toLowerCase()
+                                            .contains(query.toLowerCase()) ||
+                                        element.document
+                                            .toLowerCase()
+                                            .contains(query.toLowerCase());
+                                  }).toList();
+
+                                  re(() {
+                                    log("List Filtered=====>");
+                                  });
+                                });
                               },
                               decoration: InputDecoration(
                                 fillColor: Colors.white,

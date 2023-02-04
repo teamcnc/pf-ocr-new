@@ -35,7 +35,7 @@ class _RootDashboardState extends State<RootDashboard>
   var _isVisible;
   String selectedTab, referenceId;
   final GlobalKey<ScaffoldState> dKey = GlobalKey<ScaffoldState>();
-  TabItem _currentTab;
+  // TabItem _currentTab;
   var completeProfile;
   bool fromUnsync = false;
   FileController _fileController = FileController();
@@ -319,6 +319,7 @@ class FileStatusList extends StatefulWidget {
 class _FileStatusListState extends State<FileStatusList> {
   startTimer() {
     Timer.periodic(Duration(milliseconds: 500), (timer) {
+      print("Callledddd FileStatusList=========>");
       if (this.mounted)
         setState(() {});
       else
