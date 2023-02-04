@@ -5,6 +5,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:learning_input_image/learning_input_image.dart';
+import 'package:learning_object_detection/learning_object_detection.dart';
 import 'package:ocr/utils/AppColors.dart';
 import 'package:ocr/utils/camera_view.dart';
 import 'package:path_provider/path_provider.dart';
@@ -109,6 +111,7 @@ class _ImageSliderViewState extends State<ImageSliderView> {
                     builder: (context) => ImageCropper(
                         file: tempFile, offsets: d.values.elementAt(0)),
                   ));
+
                   if (result != null) {
                     croppedListImageSlide[index]
                         .update(d.keys.elementAt(0), (value) => result);
@@ -498,22 +501,34 @@ class _ImageCropperState extends State<ImageCropper> {
   }
 
   _openCropper() async {
-    List<Offset> list = await points();
     Offset tl, tr, br, bl;
-    setState(() {
+    ObjectDetector _detector = ObjectDetector(
+      isStream: false,
+      enableClassification: true,
+      enableMultipleObjects: true,
+    );
+    var list1 = await _detector.detect(InputImage.fromFile(widget.file));
+    if (list1.isEmpty) {
+      List<Offset> list = await points();
       tl = list[0];
       tr = list[1];
       br = list[2];
       bl = list[3];
-      pointsList.add(tl);
-      pointsList.add((tl + tr) / 2);
-      pointsList.add(tr);
-      pointsList.add((tr + br) / 2);
-      pointsList.add(br);
-      pointsList.add((br + bl) / 2);
-      pointsList.add(bl);
-      pointsList.add((bl + tl) / 2);
-    });
+    } else {
+      tl = list1[0].boundingBox.topLeft;
+      tr = list1[0].boundingBox.topRight;
+      bl = list1[0].boundingBox.bottomLeft;
+      br = list1[0].boundingBox.bottomRight;
+    }
+    pointsList.add(tl);
+    pointsList.add((tl + tr) / 2);
+    pointsList.add(tr);
+    pointsList.add((tr + br) / 2);
+    pointsList.add(br);
+    pointsList.add((br + bl) / 2);
+    pointsList.add(bl);
+    pointsList.add((bl + tl) / 2);
+    setState(() {});
   }
 
   Future<List<Offset>> points() async {

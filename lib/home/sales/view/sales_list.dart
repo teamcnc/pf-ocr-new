@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:ocr/home/RootDashboard.dart';
 import 'package:ocr/home/sales/controller/controller.dart';
 import 'package:ocr/home/sales/model/sales.dart';
@@ -255,82 +256,96 @@ class _SalesListState extends State<SalesList> {
                     },
                   ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-        selectedItemColor: Colors.white,
-        selectedFontSize: 14,
-        selectedLabelStyle: TextStyle(fontSize: 14, color: Colors.white),
-        unselectedLabelStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-        ),
-        unselectedItemColor: Colors.white,
-        unselectedIconTheme: IconThemeData(color: Colors.white),
-        selectedIconTheme: IconThemeData(color: Colors.white),
-        backgroundColor: AppColors.appTheame,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.sort), label: "Sort"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.filter_list), label: "Filter"),
-          BottomNavigationBarItem(
-              icon: Icon(widget.fromUnsync == true
-                  ? Icons.file_upload
-                  : Icons.file_present),
-              label: widget.fromUnsync == true ? "Pending" : "Scanned"),
-        ],
-        onTap: (index) async {
-          if (index == 0) {
-            showModalBottomSheet(
-                context: context,
-                builder: (botomContext) {
-                  return SortFilters(
-                    sortBy: sortedBy,
-                    sortOrder: sortOrder,
-                    onSorted: (sortList, sortBy, sortOrderValue) {
-                      if (this.mounted)
-                        setState(() {
-                          sortedBy = sortBy;
-                          sortOrder = sortOrderValue;
-                          if (sortedBy != null) sortListItems();
+      bottomNavigationBar:
+          KeyboardVisibilityBuilder(builder: (context, isKeyboardVisible) {
+        return isKeyboardVisible
+            ? SizedBox()
+            : BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                elevation: 0,
+                selectedItemColor: Colors.white,
+                selectedFontSize: 14,
+                selectedLabelStyle:
+                    TextStyle(fontSize: 14, color: Colors.white),
+                unselectedLabelStyle: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+                unselectedItemColor: Colors.white,
+                unselectedIconTheme: IconThemeData(color: Colors.white),
+                selectedIconTheme: IconThemeData(color: Colors.white),
+                backgroundColor: AppColors.appTheame,
+                showSelectedLabels: true,
+                showUnselectedLabels: true,
+                items: [
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.sort), label: "Sort"),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.filter_list), label: "Filter"),
+                  BottomNavigationBarItem(
+                      icon: Icon(widget.fromUnsync == true
+                          ? Icons.file_upload
+                          : Icons.file_present),
+                      label: widget.fromUnsync == true ? "Pending" : "Scanned"),
+                ],
+                onTap: (index) async {
+                  if (index == 0) {
+                    showModalBottomSheet(
+                        context: context,
+                        builder: (botomContext) {
+                          return SortFilters(
+                            sortBy: sortedBy,
+                            sortOrder: sortOrder,
+                            onSorted: (sortList, sortBy, sortOrderValue) {
+                              if (this.mounted)
+                                setState(() {
+                                  sortedBy = sortBy;
+                                  sortOrder = sortOrderValue;
+                                  if (sortedBy != null) sortListItems();
+                                });
+                            },
+                          );
                         });
-                    },
-                  );
-                });
-          } else if (index == 1) {
-            Map<String, dynamic> temp = await NavigationActions.navigate(
-                context,
-                SalesFilters(
-                  salesList: storeSalesList,
-                  selectedCityList: filterMap['selectedCityList'],
-                  selectedCustCodelist: filterMap['selectedCustCodelist'],
-                  selectedCustNameList: filterMap['selectedCustNameList'],
-                  selectedDriverList: filterMap['selectedDriverList'],
-                  selectedNosList: filterMap['selectedNosList'],
-                  selectedSalesEmpList: filterMap['selectedSalesEmpList'],
-                  selectedSeriesList: filterMap['selectedSeriesList'],
-                  selectedStateList: filterMap['selectedStateList'],
-                  selectedTransporterList: filterMap['selectedTransporterList'],
-                  fromDate: filterMap['fromDate'],
-                  toDate: filterMap['toDate'],
-                ));
-            if (temp != null) {
-              saleList = temp['filterList'];
-              filterMap = temp;
-              if (widget.fromUnsync == true)
-                salesUnsyncFilters = filterMap;
-              else
-                salesFilters = filterMap;
-              if (sortedBy != null) sortListItems();
-            }
-            setState(() {});
-          } else {
-            widget.onNavigate(true);
-          }
-        },
-      ),
+                  } else if (index == 1) {
+                    Map<String, dynamic> temp =
+                        await NavigationActions.navigate(
+                            context,
+                            SalesFilters(
+                              salesList: storeSalesList,
+                              selectedCityList: filterMap['selectedCityList'],
+                              selectedCustCodelist:
+                                  filterMap['selectedCustCodelist'],
+                              selectedCustNameList:
+                                  filterMap['selectedCustNameList'],
+                              selectedDriverList:
+                                  filterMap['selectedDriverList'],
+                              selectedNosList: filterMap['selectedNosList'],
+                              selectedSalesEmpList:
+                                  filterMap['selectedSalesEmpList'],
+                              selectedSeriesList:
+                                  filterMap['selectedSeriesList'],
+                              selectedStateList: filterMap['selectedStateList'],
+                              selectedTransporterList:
+                                  filterMap['selectedTransporterList'],
+                              fromDate: filterMap['fromDate'],
+                              toDate: filterMap['toDate'],
+                            ));
+                    if (temp != null) {
+                      saleList = temp['filterList'];
+                      filterMap = temp;
+                      if (widget.fromUnsync == true)
+                        salesUnsyncFilters = filterMap;
+                      else
+                        salesFilters = filterMap;
+                      if (sortedBy != null) sortListItems();
+                    }
+                    setState(() {});
+                  } else {
+                    widget.onNavigate(true);
+                  }
+                },
+              );
+      }),
     );
   }
 

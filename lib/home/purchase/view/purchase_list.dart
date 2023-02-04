@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:ocr/home/RootDashboard.dart';
 import 'package:ocr/home/files_view.dart';
 import 'package:ocr/home/purchase/controller/controller.dart';
@@ -552,84 +553,96 @@ class _PurchaseListState extends State<PurchaseList> {
                     );
                   }),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-        selectedItemColor: Colors.white,
-        selectedFontSize: 14,
-        selectedLabelStyle: TextStyle(fontSize: 14, color: Colors.white),
-        unselectedLabelStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-        ),
-        unselectedItemColor: Colors.white,
-        unselectedIconTheme: IconThemeData(color: Colors.white),
-        selectedIconTheme: IconThemeData(color: Colors.white),
-        backgroundColor: AppColors.appTheame,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.sort), label: "Sort"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.filter_list), label: "Filter"),
-          BottomNavigationBarItem(
-              icon: Icon(widget.fromUnsync == true
-                  ? Icons.file_upload
-                  : Icons.file_present),
-              label: widget.fromUnsync == true ? "Pending" : "Scanned"),
-        ],
-        onTap: (index) async {
-          if (index == 0) {
-            showModalBottomSheet(
-                context: context,
-                builder: (botomContext) {
-                  return SortFilters(
-                    // purchaseList: purchaseList,
-                    sortBy: sortedBy,
-                    sortOrder: sortOrder,
-                    onSorted: (sortList, sortBy, sortOrderValue) {
-                      if (this.mounted)
-                        setState(() {
-                          // purchaseList = sortList;
-                          sortedBy = sortBy;
-                          sortOrder = sortOrderValue;
-                          if (sortedBy != null) sortListItems();
+      bottomNavigationBar:
+          KeyboardVisibilityBuilder(builder: (context, isKeyboardVisible) {
+        return isKeyboardVisible
+            ? SizedBox()
+            : BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                elevation: 0,
+                selectedItemColor: Colors.white,
+                selectedFontSize: 14,
+                selectedLabelStyle:
+                    TextStyle(fontSize: 14, color: Colors.white),
+                unselectedLabelStyle: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+                unselectedItemColor: Colors.white,
+                unselectedIconTheme: IconThemeData(color: Colors.white),
+                selectedIconTheme: IconThemeData(color: Colors.white),
+                backgroundColor: AppColors.appTheame,
+                showSelectedLabels: true,
+                showUnselectedLabels: true,
+                items: [
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.sort), label: "Sort"),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.filter_list), label: "Filter"),
+                  BottomNavigationBarItem(
+                      icon: Icon(widget.fromUnsync == true
+                          ? Icons.file_upload
+                          : Icons.file_present),
+                      label: widget.fromUnsync == true ? "Pending" : "Scanned"),
+                ],
+                onTap: (index) async {
+                  if (index == 0) {
+                    showModalBottomSheet(
+                        context: context,
+                        builder: (botomContext) {
+                          return SortFilters(
+                            // purchaseList: purchaseList,
+                            sortBy: sortedBy,
+                            sortOrder: sortOrder,
+                            onSorted: (sortList, sortBy, sortOrderValue) {
+                              if (this.mounted)
+                                setState(() {
+                                  // purchaseList = sortList;
+                                  sortedBy = sortBy;
+                                  sortOrder = sortOrderValue;
+                                  if (sortedBy != null) sortListItems();
+                                });
+                            },
+                          );
                         });
-                    },
-                  );
-                });
-          } else if (index == 1) {
-            Map<String, dynamic> temp = await NavigationActions.navigate(
-                context,
-                PurchaseFilters(
-                  purchaseList: storePurchaseList,
-                  selectedBuyerList: filterMap['selectedBuyerList'],
-                  selectedVendorCodelist: filterMap['selectedVendorCodelist'],
-                  selectedVendorNameList: filterMap['selectedVendorNameList'],
-                  selectedSeriesList: filterMap['selectedSeriesList'],
-                  selectedTransporterList: filterMap['selectedTransporterList'],
-                  fromDate: filterMap['fromDate'],
-                  toDate: filterMap['toDate'],
-                ));
-            if (temp != null) {
-              purchaseList = temp['filterList'];
-              filterMap = temp;
-              if (widget.fromUnsync == true)
-                purchaseUnsyncFilters = filterMap;
-              else
-                purchaseFilters = filterMap;
+                  } else if (index == 1) {
+                    Map<String, dynamic> temp =
+                        await NavigationActions.navigate(
+                            context,
+                            PurchaseFilters(
+                              purchaseList: storePurchaseList,
+                              selectedBuyerList: filterMap['selectedBuyerList'],
+                              selectedVendorCodelist:
+                                  filterMap['selectedVendorCodelist'],
+                              selectedVendorNameList:
+                                  filterMap['selectedVendorNameList'],
+                              selectedSeriesList:
+                                  filterMap['selectedSeriesList'],
+                              selectedTransporterList:
+                                  filterMap['selectedTransporterList'],
+                              fromDate: filterMap['fromDate'],
+                              toDate: filterMap['toDate'],
+                            ));
+                    if (temp != null) {
+                      purchaseList = temp['filterList'];
+                      filterMap = temp;
+                      if (widget.fromUnsync == true)
+                        purchaseUnsyncFilters = filterMap;
+                      else
+                        purchaseFilters = filterMap;
 
-              if (sortedBy != null) sortListItems();
-              print("SalesList = ${purchaseList.length}");
-            }
-            setState(() {});
-          } else {
-            widget.onNavigate(true);
-            // NavigationActions.navigateRemoveUntil(context,
-            //     widget.fromUnsync == true ? FilesView() : UnsyncFiles());
-          }
-        },
-      ),
+                      if (sortedBy != null) sortListItems();
+                      print("SalesList = ${purchaseList.length}");
+                    }
+                    setState(() {});
+                  } else {
+                    widget.onNavigate(true);
+                    // NavigationActions.navigateRemoveUntil(context,
+                    //     widget.fromUnsync == true ? FilesView() : UnsyncFiles());
+                  }
+                },
+              );
+      }),
       //   floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
       //   floatingActionButton: Container(
       //     height: 50,

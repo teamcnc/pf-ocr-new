@@ -264,21 +264,110 @@ class _RootDashboardState extends State<RootDashboard>
           ),
           //logout btn
           IconButton(
-              icon: Icon(Icons.logout),
-              onPressed: () async {
-                // salesFilters = {};
-                // purchaseFilters = {};
-                // salesUnsyncFilters = {};
-                // purchaseUnsyncFilters = {};
-                // globalSalesList = [];
-                // globalPurchaseList = [];
-                SharedPrefManager.logout(null);
-                // NetworkConnect.currentUser = null;
-                // await UploadDocuments.deleteAllFiles();
-                Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => UserLogin()),
-                    (Route<dynamic> route) => false);
-              })
+            icon: Icon(Icons.logout),
+            onPressed: () async {
+              showModalBottomSheet(
+                context: context,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15),
+                  topRight: Radius.circular(15),
+                )),
+                builder: (context) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: SizedBox(
+                            width: 60,
+                            child: Divider(
+                              thickness: 3.5,
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          "Are you sure you want Sign out.",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          "Scanned data might be deleted",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  fixedSize: Size(
+                                    MediaQuery.of(context).size.width / 2.3,
+                                    40,
+                                  ),
+                                  backgroundColor: AppColors.appTheame,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  )),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text("Cancel"),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.appTheame,
+                                  fixedSize: Size(
+                                    MediaQuery.of(context).size.width / 2.3,
+                                    40,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  )),
+                              onPressed: () {
+                                // salesFilters = {};
+                                // purchaseFilters = {};
+                                // salesUnsyncFilters = {};
+                                // purchaseUnsyncFilters = {};
+                                // globalSalesList = [];
+                                // globalPurchaseList = [];
+                                SharedPrefManager.logout(null);
+                                // NetworkConnect.currentUser = null;
+                                // await UploadDocuments.deleteAllFiles();
+                                Navigator.of(context).pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                        builder: (context) => UserLogin()),
+                                    (Route<dynamic> route) => false);
+                              },
+                              child: Text("Confirm"),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  );
+                },
+              );
+            },
+          )
         ],
       ),
       body: NetworkConnect.currentUser.auth != 'N'
