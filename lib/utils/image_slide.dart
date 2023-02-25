@@ -5,8 +5,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:learning_input_image/learning_input_image.dart';
-import 'package:learning_object_detection/learning_object_detection.dart';
+// import 'package:learning_input_image/learning_input_image.dart';
+// import 'package:learning_object_detection/learning_object_detection.dart';
 import 'package:ocr/utils/AppColors.dart';
 import 'package:ocr/utils/camera_view.dart';
 import 'package:path_provider/path_provider.dart';
@@ -502,24 +502,29 @@ class _ImageCropperState extends State<ImageCropper> {
 
   _openCropper() async {
     Offset tl, tr, br, bl;
-    ObjectDetector _detector = ObjectDetector(
-      isStream: false,
-      enableClassification: true,
-      enableMultipleObjects: true,
-    );
-    var list1 = await _detector.detect(InputImage.fromFile(widget.file));
-    if (list1.isEmpty) {
-      List<Offset> list = await points();
-      tl = list[0];
-      tr = list[1];
-      br = list[2];
-      bl = list[3];
-    } else {
-      tl = list1[0].boundingBox.topLeft;
-      tr = list1[0].boundingBox.topRight;
-      bl = list1[0].boundingBox.bottomLeft;
-      br = list1[0].boundingBox.bottomRight;
-    }
+    // ObjectDetector _detector = ObjectDetector(
+    //   isStream: false,
+    //   enableClassification: true,
+    //   enableMultipleObjects: true,
+    // );
+    // var list1 = await _detector.detect(InputImage.fromFile(widget.file));
+    // if (list1.isEmpty) {
+    //   List<Offset> list = await points();
+    //   tl = list[0];
+    //   tr = list[1];
+    //   br = list[2];
+    //   bl = list[3];
+    // } else {
+    //   tl = list1[0].boundingBox.topLeft;
+    //   tr = list1[0].boundingBox.topRight;
+    //   bl = list1[0].boundingBox.bottomLeft;
+    //   br = list1[0].boundingBox.bottomRight;
+    // }
+    List<Offset> list = await points();
+    tl = list[0];
+    tr = list[1];
+    br = list[2];
+    bl = list[3];
     pointsList.add(tl);
     pointsList.add((tl + tr) / 2);
     pointsList.add(tr);

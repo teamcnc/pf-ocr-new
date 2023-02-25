@@ -33,8 +33,8 @@ dependencies:
   # thumbnailer: ^2.0.1
   device_information: ^0.0.4
   flutter_keyboard_visibility: ^5.4.0
-  learning_object_detection: ^0.0.2
-  learning_input_image: ^0.0.6+2
+  # learning_object_detection: ^0.0.2
+  # learning_input_image: ^0.0.6+2
   
   
 dependency_overrides:
